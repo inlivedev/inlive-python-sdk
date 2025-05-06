@@ -1,0 +1,122 @@
+Metadata-Version: 2.4
+Name: inlive-python-sdk
+Version: 0.1.0
+Summary: Python SDK for inLive platform, including RTC and recording modules.
+Author-email: Your Name <your@email.com>
+Project-URL: Homepage, https://github.com/inlivedev/inlive-python-sdk
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: aiortc>=1.11.0
+Requires-Dist: aioice>=0.7.5
+Requires-Dist: httpx>=0.24.0
+Requires-Dist: pyee>=9.0.0
+Requires-Dist: pytest>=8.3.5
+Requires-Dist: requests>=2.32.3
+Requires-Dist: fastapi>=0.115.12
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: pytest-asyncio>=0.24.0
+Requires-Dist: numpy>1.24.4
+
+# inLive Python SDK
+
+A Python SDK for the inLive platform, providing tools for WebRTC peer connection management, signaling, room and token operations, and media recording. This SDK is designed for building bots, recorders, and automation tools that interact with inLive's real-time communication infrastructure.
+
+## Features
+
+- WebRTC peer connection management using `aiortc`
+- Room creation, management, and signaling utilities
+- Access token generation and validation
+- Audio/video recording from WebRTC streams (using PyAV)
+- Asynchronous event-driven architecture
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## Requirements
+
+- Python 3.8+
+- [aiortc](https://github.com/aiortc/aiortc)
+- [PyAV](https://github.com/PyAV-Org/PyAV)
+- [httpx](https://www.python-httpx.org/)
+- [pyee](https://pyee.readthedocs.io/en/latest/)
+
+## Usage Example
+
+Below is an example of how to use the SDK to join a room and record media streams:
+
+```python
+import asyncio
+from src.recorder.manager import RecorderManager
+from src.app.threadpool import ThreadPoolManager
+
+async def main():
+    # Initialize thread pool and recorder manager
+    threadpool = ThreadPoolManager()
+    manager = RecorderManager()
+
+    # Set your credentials and room info
+    token = "YOUR_ACCESS_TOKEN"
+    room_id = "test-room"
+    name = "recorder-bot"
+    dirpath = "recordings"
+
+    # Create a recorder for the room
+    recorder = await manager.create_recorder(
+        threadpool=threadpool,
+        token=token,
+        room_id=room_id,
+        name=name,
+        dirpath=dirpath,
+    )
+
+    if recorder:
+        # Connect to the room and start recording
+        await recorder.connect()
+        await recorder.start()
+        print(f"Recording started for room: {room_id}")
+
+        # Run until interrupted
+        try:
+            while True:
+                await asyncio.sleep(1)
+        except KeyboardInterrupt:
+            print("Stopping recorder...")
+
+        # Clean up
+        await manager.end()
+        print("Recording stopped.")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Environment Variables
+
+Set the following environment variables as needed:
+
+- `API_ORIGIN`: Base URL for the inLive API (default: `https://api.inlive.app`)
+- `HUB_ORIGIN`: Base URL for the inLive Hub (default: `https://hub.inlive.app`)
+- `API_KEY`: Your inLive API key
+
+## Project Structure
+
+```
+src/
+    recorder/
+        manager.py
+        media.py
+        recorder.py
+    rtc/
+        __init__.py
+        api.py
+        rtc.py
+pyproject.toml
+README.md
+```
+
+## License
+
+MIT
