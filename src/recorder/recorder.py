@@ -7,7 +7,7 @@ This module provides classes for recording audio and video tracks from WebRTC st
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
-from aiortc import MediaStreamTrack, sdp
+from aiortc import MediaStreamTrack
 from aiortc.contrib.media import MediaRelay, MediaRecorder
 from aiortc.mediastreams import (
     MediaStreamError,
@@ -189,29 +189,6 @@ class RoomRecorder(RTC):
         """
         for recorder in self._recorders.values():
             await recorder.stop()
-
-    def get_track_msid(self, track_id: str) -> str | None:
-        """
-        Get the tracks map from the remote SDP
-
-        Returns:
-            dict: A dictionary mapping track IDs to their corresponding msid.
-        """
-        remoteSDP = self.pc.remoteDescription
-        if remoteSDP is None:
-            return {}
-
-        tracks_map = {}
-        sessionDescription = sdp.SessionDescription.parse(remoteSDP.sdp)
-        for media in sessionDescription.media:
-            if media.msid:
-                bits = media.msid.split(" ")
-                if len(bits) == 2:
-                    track_id = bits[1]
-                    msid = bits[0]
-                    tracks_map[track_id] = msid
-
-        return tracks_map[track_id] if track_id in tracks_map else None
 
     def _handle_track(self, track: MediaStreamTrack):
         """

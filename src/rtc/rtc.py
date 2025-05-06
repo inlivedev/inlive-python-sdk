@@ -17,6 +17,7 @@ from aiortc import (
     RTCIceServer,
     RTCPeerConnection,
     RTCSessionDescription,
+    sdp,
 )
 from aiortc.rtcicetransport import candidate_from_aioice
 from httpx import AsyncClient, Response, Timeout
@@ -504,14 +505,25 @@ class RTC(AsyncIOEventEmitter, metaclass=ABCMeta):
                     packet_loss_rate = packets_lost / (packets_lost + packets_received)
                     logger.info(f"Packet loss rate: {packet_loss_rate:.2%}")
 
-    def get_stream_id_for_track(self, track_id: str) -> str | None:
+    def get_track_msid(self, track_id: str) -> str | None:
         """
-        Get the MediaStream ID (msid) for a given track ID, if available.
-        Args:
-            track_id (str): The track ID to look up.
+        Get the tracks map from the remote SDP
+
         Returns:
-            str | None: The msid (stream ID) if found, else None.
+            dict: A dictionary mapping track IDs to their corresponding msid.
         """
-        if hasattr(self, "track_id_to_msid"):
-            return self.track_id_to_msid.get(track_id)
-        return None
+        remoteSDP = self.pc.remoteDescription
+        if remoteSDP is None:
+            return {}
+
+        tracks_map = {}
+        sessionDescription = sdp.SessionDescription.parse(remoteSDP.sdp)
+        for media in sessionDescription.media:
+            if media.msid:
+                bits = media.msid.split(" ")
+                if len(bits) == 2:
+                    track_id = bits[1]
+                    msid = bits[0]
+                    tracks_map[track_id] = msid
+
+        return tracks_map[track_id] if track_id in tracks_map else None

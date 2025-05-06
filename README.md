@@ -11,15 +11,19 @@ A Python SDK for the Inlive platform, providing tools for WebRTC peer connection
 - Asynchronous event-driven architecture
 
 ## Installation
+WIP - no Python package published yet. Clone the repo and install the requirements using [https://github.com/astral-sh/uv](uv)
+
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ## Requirements
 
 - Python 3.9+
 - [aiortc](https://github.com/aiortc/aiortc)
+- [uv](https://github.com/astral-sh/uv)
+- [PyAV](https://github.com/PyAV-Org/PyAV)
 
 
 ## Usage Example
