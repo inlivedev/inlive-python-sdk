@@ -23,4 +23,6 @@ pip install -r requirements.txt
 
 
 ## Usage Example
-Check the tests for usage examples.
+This repo still WIP, refer to test code to see how to use the SDK. Don't forget to set the environment variables as seen in .env.example. Copy to .env and fill in the values.
+
+
